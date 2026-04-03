@@ -1,16 +1,38 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Navbar from "@/components/landing/Navbar";
+import Hero from "@/components/landing/Hero";
+import SocialProofStrip from "@/components/landing/SocialProofStrip";
+import HowItWorks from "@/components/landing/HowItWorks";
+import Benefits from "@/components/landing/Benefits";
+import ForWho from "@/components/landing/ForWho";
+import Pricing from "@/components/landing/Pricing";
+import Differentials from "@/components/landing/Differentials";
+import MicroContent from "@/components/landing/MicroContent";
+import Testimonials from "@/components/landing/Testimonials";
+import FAQ from "@/components/landing/FAQ";
+import FinalCTA from "@/components/landing/FinalCTA";
+import Footer from "@/components/landing/Footer";
+import StickyMobileCTA from "@/components/landing/StickyMobileCTA";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-background selection:bg-primary selection:text-primary-foreground">
+      <Navbar />
+      <Hero />
+      <SocialProofStrip />
+      <HowItWorks />
+      <Benefits />
+      <ForWho />
+      <Pricing />
+      <Differentials />
+      <MicroContent />
+      <Testimonials />
+      <FAQ />
+      <FinalCTA />
+      <Footer />
+      <StickyMobileCTA />
+      <div className="h-20 md:h-0" />
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
