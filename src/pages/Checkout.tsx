@@ -116,12 +116,28 @@ export default function Checkout() {
     return digits;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!name || !email || !cpf) {
       toast({ title: "Preencha todos os campos obrigatórios", variant: "destructive" });
       return;
     }
-    toast({ title: "Processamento de pagamento não configurado", description: "Configure a integração de pagamento para habilitar esta funcionalidade." });
+    setLoading(true);
+    try {
+      const timestamp = Math.floor(Date.now() / 1000);
+      const { error } = await supabase.from("dados_cliente").insert({
+        email,
+        nomewpp: name,
+        telefone: phone.replace(/\D/g, ""),
+        cpfCnpj: cpf.replace(/\D/g, ""),
+        created_at: new Date(timestamp * 1000).toISOString(),
+      });
+      if (error) throw error;
+      toast({ title: "Dados salvos com sucesso!" });
+    } catch (err: any) {
+      toast({ title: "Erro ao salvar dados", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputClass =
