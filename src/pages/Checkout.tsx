@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Copy, Check, Loader2, QrCode, CreditCard, FileText, Smartphone, ChevronDown } from "lucide-react";
+import { ArrowLeft, Copy, Check, Loader2, CreditCard, FileText, Smartphone, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
@@ -62,6 +62,17 @@ function useCountdown(minutes: number) {
   return { mins, secs, expired: secondsLeft <= 0 };
 }
 
+type PaymentResult = {
+  success: boolean;
+  paymentId: string;
+  status: string;
+  billingType: BillingType;
+  invoiceUrl?: string;
+  bankSlipUrl?: string;
+  pixQrCode?: string;
+  pixCopyPaste?: string;
+};
+
 export default function Checkout() {
   const countdown = useCountdown(30);
   const [searchParams] = useSearchParams();
@@ -81,6 +92,8 @@ export default function Checkout() {
   const [addressNumber, setAddressNumber] = useState("");
   const [installments, setInstallments] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const { toast } = useToast();
 
@@ -116,25 +129,78 @@ export default function Checkout() {
     return digits;
   };
 
+  const handleCopyPix = () => {
+    if (paymentResult?.pixCopyPaste) {
+      navigator.clipboard.writeText(paymentResult.pixCopyPaste);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!name || !email || !cpf) {
       toast({ title: "Preencha todos os campos obrigatórios", variant: "destructive" });
       return;
     }
+
+    if (billingType === "CREDIT_CARD" && (!cardNumber || !cardExpiry || !cardCvv || !cardName || !postalCode || !addressNumber)) {
+      toast({ title: "Preencha todos os dados do cartão", variant: "destructive" });
+      return;
+    }
+
     setLoading(true);
     try {
-      const timestamp = Math.floor(Date.now() / 1000);
-      const { error } = await supabase.from("dados_cliente").insert({
+      const expiryParts = cardExpiry.split("/");
+      const payload: Record<string, unknown> = {
+        name,
         email,
-        nomewpp: name,
-        telefone: phone.replace(/\D/g, ""),
-        cpfCnpj: cpf.replace(/\D/g, ""),
-        created_at: new Date(timestamp * 1000).toISOString(),
+        cpfCnpj: cpf,
+        phone,
+        billingType,
+        value: plan.price,
+        description: plan.name,
+      };
+
+      if (billingType === "CREDIT_CARD") {
+        payload.creditCard = {
+          holderName: cardName,
+          number: cardNumber,
+          expiryMonth: expiryParts[0],
+          expiryYear: expiryParts[1],
+          ccv: cardCvv,
+        };
+        payload.creditCardHolderInfo = {
+          name: cardName,
+          email,
+          cpfCnpj: cpf,
+          postalCode,
+          addressNumber,
+          phone,
+        };
+        if (plan.allowInstallments && installments > 1) {
+          payload.installmentCount = installments;
+        }
+      }
+
+      const { data, error } = await supabase.functions.invoke("create-payment", {
+        body: payload,
       });
+
       if (error) throw error;
-      toast({ title: "Dados salvos com sucesso!" });
+      if (data?.error) throw new Error(data.error);
+
+      setPaymentResult(data as PaymentResult);
+
+      if (billingType === "CREDIT_CARD") {
+        toast({ title: "Pagamento aprovado! ✅" });
+      } else if (billingType === "PIX") {
+        toast({ title: "PIX gerado! Escaneie o QR Code ou copie o código." });
+      } else {
+        toast({ title: "Boleto gerado! Clique para visualizar." });
+      }
     } catch (err: any) {
-      toast({ title: "Erro ao salvar dados", description: err.message, variant: "destructive" });
+      console.error("Payment error:", err);
+      toast({ title: "Erro no pagamento", description: err.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -145,6 +211,88 @@ export default function Checkout() {
 
   const groupedInputClass =
     "w-full h-12 px-4 bg-transparent border-b border-border text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring text-sm";
+
+  // Show payment result screen
+  if (paymentResult) {
+    return (
+      <div className="min-h-screen bg-muted/30">
+        <nav className="glass fixed top-0 w-full z-50">
+          <div className="container h-16 md:h-20 flex items-center gap-4">
+            <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowLeft size={18} />
+              <span className="text-sm font-medium">Voltar</span>
+            </Link>
+            <span className="text-foreground font-extrabold text-xl">Nutri Lian</span>
+          </div>
+        </nav>
+
+        <div className="container pt-28 pb-20 max-w-lg mx-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-2xl p-6 md:p-8">
+            {paymentResult.billingType === "CREDIT_CARD" && (
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                  <Check size={32} className="text-primary" />
+                </div>
+                <h2 className="text-foreground font-bold text-xl">Pagamento Aprovado!</h2>
+                <p className="text-muted-foreground text-sm">Seu acesso será liberado em instantes. Verifique seu email.</p>
+              </div>
+            )}
+
+            {paymentResult.billingType === "PIX" && (
+              <div className="space-y-6 text-center">
+                <h2 className="text-foreground font-bold text-xl">Pague com PIX</h2>
+                {paymentResult.pixQrCode && (
+                  <div className="bg-white rounded-xl p-4 inline-block mx-auto">
+                    <img
+                      src={`data:image/png;base64,${paymentResult.pixQrCode}`}
+                      alt="QR Code PIX"
+                      className="w-48 h-48"
+                    />
+                  </div>
+                )}
+                {paymentResult.pixCopyPaste && (
+                  <div className="space-y-2">
+                    <p className="text-muted-foreground text-sm">Ou copie o código:</p>
+                    <div className="flex gap-2">
+                      <input
+                        readOnly
+                        value={paymentResult.pixCopyPaste}
+                        className="flex-1 h-10 px-3 bg-muted border border-border rounded-lg text-xs text-foreground truncate"
+                      />
+                      <Button variant="outline" size="sm" onClick={handleCopyPix}>
+                        {copied ? <Check size={16} /> : <Copy size={16} />}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {paymentResult.billingType === "BOLETO" && (
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                  <FileText size={32} className="text-primary" />
+                </div>
+                <h2 className="text-foreground font-bold text-xl">Boleto Gerado!</h2>
+                <p className="text-muted-foreground text-sm">Clique abaixo para visualizar e pagar seu boleto.</p>
+                {(paymentResult.bankSlipUrl || paymentResult.invoiceUrl) && (
+                  <a
+                    href={paymentResult.bankSlipUrl || paymentResult.invoiceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="hero" size="lg" className="w-full mt-4">
+                      Visualizar Boleto
+                    </Button>
+                  </a>
+                )}
+              </div>
+            )}
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">
