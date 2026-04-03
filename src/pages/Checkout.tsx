@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Clock, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Copy, Check, Loader2, QrCode, CreditCard, FileText, Smartphone, ChevronDown } from "lucide-react";

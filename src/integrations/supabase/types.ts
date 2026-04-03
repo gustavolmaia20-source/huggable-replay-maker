@@ -26,6 +26,7 @@ export type Database = {
           dieta: Json | null
           dieta_gerada_em: number | null
           dieta_html: string | null
+          email: string | null
           fluxo_etapa: string | null
           id: number
           "Ja foi cliente": boolean | null
@@ -46,6 +47,7 @@ export type Database = {
           dieta?: Json | null
           dieta_gerada_em?: number | null
           dieta_html?: string | null
+          email?: string | null
           fluxo_etapa?: string | null
           id?: number
           "Ja foi cliente"?: boolean | null
@@ -66,6 +68,7 @@ export type Database = {
           dieta?: Json | null
           dieta_gerada_em?: number | null
           dieta_html?: string | null
+          email?: string | null
           fluxo_etapa?: string | null
           id?: number
           "Ja foi cliente"?: boolean | null
