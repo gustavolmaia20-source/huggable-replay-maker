@@ -176,12 +176,14 @@ Deno.serve(async (req) => {
     );
 
     const timestamp = Math.floor(Date.now() / 1000);
+    const isConfirmed = ["CONFIRMED", "RECEIVED", "APPROVED"].includes(payment.status);
     await supabase.from("dados_cliente").insert({
       email,
       nomewpp: name,
       telefone: phone.replace(/\D/g, ""),
       cpfCnpj: cpfCnpj.replace(/\D/g, ""),
       created_at: new Date(timestamp * 1000).toISOString(),
+      fluxo_etapa: isConfirmed ? "CONVERSAO" : "PENDENTE",
     });
 
     return new Response(
