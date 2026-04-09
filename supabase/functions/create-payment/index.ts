@@ -176,7 +176,6 @@ Deno.serve(async (req) => {
     );
 
     const timestamp = Math.floor(Date.now() / 1000);
-    const isConfirmed = ["CONFIRMED", "RECEIVED", "APPROVED"].includes(payment.status);
     await supabase.from("dados_cliente").insert({
       email,
       nomewpp: name,
