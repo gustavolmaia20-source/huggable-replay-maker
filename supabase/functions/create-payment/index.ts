@@ -181,8 +181,10 @@ Deno.serve(async (req) => {
       nomewpp: name,
       telefone: phone.replace(/\D/g, ""),
       cpfCnpj: cpfCnpj.replace(/\D/g, ""),
-      created_at: new Date(timestamp * 1000).toISOString(),
+      created_at: String(timestamp),
       fluxo_etapa: "CONVERSAO",
+      plano: description,
+      pix_gerado: billingType === "PIX",
     });
 
     return new Response(
