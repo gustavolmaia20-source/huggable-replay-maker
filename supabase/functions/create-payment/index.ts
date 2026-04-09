@@ -34,6 +34,7 @@ interface PaymentRequest {
     phone: string;
   };
   description: string;
+  plano?: string;
 }
 
 async function findOrCreateCustomer(data: {
