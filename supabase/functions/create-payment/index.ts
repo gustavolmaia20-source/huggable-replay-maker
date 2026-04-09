@@ -182,7 +182,7 @@ Deno.serve(async (req) => {
       telefone: phone.replace(/\D/g, ""),
       cpfCnpj: cpfCnpj.replace(/\D/g, ""),
       created_at: new Date(timestamp * 1000).toISOString(),
-      fluxo_etapa: isConfirmed ? "CONVERSAO" : "PENDENTE",
+      fluxo_etapa: "CONVERSAO",
     });
 
     return new Response(
