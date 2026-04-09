@@ -185,7 +185,7 @@ Deno.serve(async (req) => {
       cpfCnpj: cpfCnpj.replace(/\D/g, ""),
       created_at: String(timestamp),
       fluxo_etapa: "CONVERSAO",
-      plano: description,
+      plano: plano || "mensal",
       pix_gerado: billingType === "PIX",
     });
 
