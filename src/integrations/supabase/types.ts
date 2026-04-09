@@ -19,13 +19,13 @@ export type Database = {
           anamnese: Json | null
           anamnese_etapa: number | null
           atendimento_ia: string | null
+          checkins: Json | null
           cpfCnpj: string | null
           created_at: string | null
           ctwa_clid: string | null
           "Data pago": string | null
           dieta: Json | null
           dieta_gerada_em: number | null
-          dieta_html: string | null
           email: string | null
           fluxo_etapa: string | null
           id: number
@@ -33,6 +33,7 @@ export type Database = {
           meta_event_sent: boolean | null
           nomewpp: string | null
           pix_gerado: boolean | null
+          plano: string | null
           telefone: string | null
           whatsapp_business_account_id: string | null
         }
@@ -40,13 +41,13 @@ export type Database = {
           anamnese?: Json | null
           anamnese_etapa?: number | null
           atendimento_ia?: string | null
+          checkins?: Json | null
           cpfCnpj?: string | null
           created_at?: string | null
           ctwa_clid?: string | null
           "Data pago"?: string | null
           dieta?: Json | null
           dieta_gerada_em?: number | null
-          dieta_html?: string | null
           email?: string | null
           fluxo_etapa?: string | null
           id?: number
@@ -54,6 +55,7 @@ export type Database = {
           meta_event_sent?: boolean | null
           nomewpp?: string | null
           pix_gerado?: boolean | null
+          plano?: string | null
           telefone?: string | null
           whatsapp_business_account_id?: string | null
         }
@@ -61,13 +63,13 @@ export type Database = {
           anamnese?: Json | null
           anamnese_etapa?: number | null
           atendimento_ia?: string | null
+          checkins?: Json | null
           cpfCnpj?: string | null
           created_at?: string | null
           ctwa_clid?: string | null
           "Data pago"?: string | null
           dieta?: Json | null
           dieta_gerada_em?: number | null
-          dieta_html?: string | null
           email?: string | null
           fluxo_etapa?: string | null
           id?: number
@@ -75,6 +77,7 @@ export type Database = {
           meta_event_sent?: boolean | null
           nomewpp?: string | null
           pix_gerado?: boolean | null
+          plano?: string | null
           telefone?: string | null
           whatsapp_business_account_id?: string | null
         }
