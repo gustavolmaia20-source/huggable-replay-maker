@@ -94,6 +94,7 @@ Deno.serve(async (req) => {
       creditCard,
       creditCardHolderInfo,
       description,
+      plano,
     } = body;
 
     // 1. Find or create customer
