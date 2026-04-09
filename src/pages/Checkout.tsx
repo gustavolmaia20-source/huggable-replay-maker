@@ -159,6 +159,7 @@ export default function Checkout() {
         billingType,
         value: plan.price,
         description: plan.name,
+        plano: planParam || "mensal",
       };
 
       if (billingType === "CREDIT_CARD") {

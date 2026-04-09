@@ -34,6 +34,7 @@ interface PaymentRequest {
     phone: string;
   };
   description: string;
+  plano?: string;
 }
 
 async function findOrCreateCustomer(data: {
@@ -93,6 +94,7 @@ Deno.serve(async (req) => {
       creditCard,
       creditCardHolderInfo,
       description,
+      plano,
     } = body;
 
     // 1. Find or create customer
@@ -183,7 +185,7 @@ Deno.serve(async (req) => {
       cpfCnpj: cpfCnpj.replace(/\D/g, ""),
       created_at: String(timestamp),
       fluxo_etapa: "CONVERSAO",
-      plano: description,
+      plano: plano || "mensal",
       pix_gerado: billingType === "PIX",
     });
 
